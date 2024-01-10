@@ -8,16 +8,16 @@ from django.db.models import Q
 
 class InvoiceViewSet(viewsets.ModelViewSet):
 
-    queryset = Invoice.objects.all()
+    queryset = InvoiceDetails.objects.all()
     serializer_class = InvoiceSerializer
     permission_classes = [permissions.AllowAny]
 
     def list(self, request):
         try:
-            serialize = InvoiceSerializer(self.queryset, many=True)
+            print("i am in list func")
+            serialize = InvoiceDetailSerializer(self.queryset, many=True)
 
-            if serialize.is_valid():
-                return Response({
+            return Response({
                     'status': 200,
                     'message': "fetched all invoices and its details",
                     'date': serialize.data
@@ -45,13 +45,35 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             serialize = InvoiceSerializer(data=data)
 
             if serialize.is_valid():
-                serialize.save()
+                invoice_obj = serialize.save()
 
+                data['invoice'] = invoice_obj.invoice_id
+                print(data['invoice'])
+                print(data)
+
+                invoice_Detail_serialize = InvoiceDetailSerializer(data=data)
+
+                if invoice_Detail_serialize.is_valid():
+                    invoice_Detail_serialize.save()
+
+                    return Response({
+                        'status': 201,
+                        'message': "Invoice Created successfully",
+                        'invoice customer detail': serialize.data,
+                        'date': invoice_Detail_serialize.data
+                    }, status=status.HTTP_201_CREATED)
+                
                 return Response({
-                    'status': 201,
-                    'message': "Invoice Created successfully",
-                    'date': serialize.data
-                }, status=status.HTTP_201_CREATED)
+                    'status': 400,
+                    'message': "error occured",
+                    'error': invoice_Detail_serialize.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({
+                    'status': 400,
+                    'message': "error occured",
+                    'error': serialize.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             print(e)
