@@ -37,7 +37,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         
     
     def update(self, instance, validated_date):
-        instance.customer_name = validated_date.get('customer_name')
+        instance.customer_name = validated_date.get('customer_name', instance.customer_name)
         instance.save()
         return instance
 
@@ -98,9 +98,10 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     
 
     def update(self, instance, validated_data):
-        instance.desc = validated_data.get('desc')
-        instance.quantity = validated_data.get('quantity')
-        instance.unit_price = validated_data.get('unit_price')
+        print("i am in update func of invoice detail")
+        instance.desc = validated_data.get('desc', instance.desc)
+        instance.quantity = validated_data.get('quantity', instance.quantity)
+        instance.unit_price = validated_data.get('unit_price', instance.unit_price)
 
         instance.save()
         return instance

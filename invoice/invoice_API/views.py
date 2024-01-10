@@ -17,7 +17,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     # http_method_names = ['get', 'post', 'head', 'delete', 'put', 'patch']
 
 
-    @method_decorator(cache_page(60 * 60))
+    # @method_decorator(cache_page(60 * 60))
     def list(self, request):
         try:
             print("i am in list func")
@@ -30,10 +30,10 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                     'date': serialize.data
                 }, status=status.HTTP_200_OK)
             
-            return Response({
-                'status': 400,
-                'error': "error occured"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            # return Response({
+            #     'status': 400,
+            #     'error': "error occured"
+            # }, status=status.HTTP_400_BAD_REQUEST)
         
         except Exception as e:
             print(e)
@@ -68,8 +68,10 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                     return Response({
                         'status': 201,
                         'message': "Invoice Created successfully",
-                        'invoice customer detail': serialize.data,
-                        'date': invoice_Detail_serialize.data
+                        'date': {
+                            "invoice": serialize.data,
+                            "invoice details": invoice_Detail_serialize.data
+                        } 
                     }, status=status.HTTP_201_CREATED)
                 
                 return Response({
@@ -126,14 +128,11 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     
 
 
-    def update(self, request):
+    def update(self, request, pk):
         try:
-
             data = request.data
-            customer_objs = Invoice.objects.filter(
-                Q(invoice_id = uuid.UUID(data.get('invoice'))) | 
-                Q(customer_name=str(data.get('customer_name')))
-            )
+            print("i am in update func")
+            customer_objs = Invoice.objects.filter(invoice_id = uuid.UUID(pk))
 
             if customer_objs.count() == 0:
                 return Response({
@@ -148,15 +147,22 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 invoice_obj = serialize.save()
 
                 invoice_detail_obj = InvoiceDetails.objects.filter(invoice = invoice_obj.invoice_id).first()
+
+                print(invoice_detail_obj)
                 
                  # invoice detail model serializer
                 invoice_detail_serialize = InvoiceDetailSerializer(invoice_detail_obj, data=data)
 
                 if invoice_detail_serialize.is_valid():
+                    invoice_detail_serialize.save()
+                    
                     return Response({
-                        'status': 200,
+                        'status': 201,
                         'message': "Invoice Updated successfully",
-                        'date': serialize.data
+                        'date': {
+                            "invoice": serialize.data,
+                            "invoice details": invoice_detail_serialize.data
+                        }
                     }, status=status.HTTP_201_CREATED)
                 
                 return Response({
