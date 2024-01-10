@@ -49,7 +49,6 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvoiceDetails
         fields = ['invoice', 'desc', 'quantity', 'unit_price', 'price']
-        depth = 1
 
     
     def validate(self, validated_data):

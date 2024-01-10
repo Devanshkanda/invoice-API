@@ -5,15 +5,19 @@ from .models import *
 from .serializers import *
 from django.db.models import Q
 import uuid
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 # Create your views here.
 
 class InvoiceViewSet(viewsets.ModelViewSet):
 
     queryset = InvoiceDetails.objects.all()
     serializer_class = InvoiceSerializer
-    # permission_classes = [permissions.AllowAny]
-    http_method_names = ['get', 'post', 'head', 'delete', 'put', 'patch']
+    permission_classes = [permissions.AllowAny]
+    # http_method_names = ['get', 'post', 'head', 'delete', 'put', 'patch']
 
+
+    @method_decorator(cache_page(60 * 60))
     def list(self, request):
         try:
             print("i am in list func")
