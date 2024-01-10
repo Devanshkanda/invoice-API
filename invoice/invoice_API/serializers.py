@@ -34,6 +34,12 @@ class InvoiceSerializer(serializers.ModelSerializer):
         except Exception as e:
             print(e)
             raise serializers.ValidationError("error")
+        
+    
+    def update(self, instance, validated_date):
+        instance.customer_name = validated_date.get('customer_name')
+        instance.save()
+        return instance
 
 
 class InvoiceDetailSerializer(serializers.ModelSerializer):
@@ -43,6 +49,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvoiceDetails
         fields = ['invoice', 'desc', 'quantity', 'unit_price', 'price']
+        depth = 1
 
     
     def validate(self, validated_data):
@@ -89,3 +96,12 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
 
         except Exception as e:
             print(e)
+    
+
+    def update(self, instance, validated_data):
+        instance.desc = validated_data.get('desc')
+        instance.quantity = validated_data.get('quantity')
+        instance.unit_price = validated_data.get('unit_price')
+
+        instance.save()
+        return instance

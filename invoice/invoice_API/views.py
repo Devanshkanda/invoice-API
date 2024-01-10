@@ -4,18 +4,21 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from django.db.models import Q
+import uuid
 # Create your views here.
 
 class InvoiceViewSet(viewsets.ModelViewSet):
 
     queryset = InvoiceDetails.objects.all()
     serializer_class = InvoiceSerializer
-    permission_classes = [permissions.AllowAny]
+    # permission_classes = [permissions.AllowAny]
+    http_method_names = ['get', 'post', 'head', 'delete', 'put', 'patch']
 
     def list(self, request):
         try:
             print("i am in list func")
-            serialize = InvoiceDetailSerializer(self.queryset, many=True)
+            queryset = InvoiceDetails.objects.all()
+            serialize = InvoiceDetailSerializer(queryset, many=True)
 
             return Response({
                     'status': 200,
@@ -42,6 +45,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         try:
             data = request.data
 
+            # invoice model serializer
             serialize = InvoiceSerializer(data=data)
 
             if serialize.is_valid():
@@ -51,6 +55,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 print(data['invoice'])
                 print(data)
 
+                # invoice detail model serializer
                 invoice_Detail_serialize = InvoiceDetailSerializer(data=data)
 
                 if invoice_Detail_serialize.is_valid():
@@ -84,39 +89,83 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 
-    def retrieve(self, request):
+
+    def retrieve(self, request, pk):
         try:
-            pass
+            print("i am in retrive func", pk)
+
+            invoice_obj = Invoice.objects.filter(invoice_id = uuid.UUID(pk)).first()
+
+            if invoice_obj is None:
+                return Response({
+                    'status': 404,
+                    'message': "Invoice not found",
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            invoice_Details_objs = InvoiceDetails.objects.filter(invoice = invoice_obj.invoice_id)
+
+            serialize = InvoiceDetailSerializer(invoice_Details_objs.first())
+
+            return Response({
+                'status': 200,
+                'message': "invoice fetched successfully",
+                'data': serialize.data
+            }, status=status.HTTP_200_OK)
+        
         except Exception as e:
             print(e)
+        
+        return Response({
+            'status': 400,
+            'error': "Something went wrong"
+        }, status=status.HTTP_400_BAD_REQUEST)
     
+
 
     def update(self, request):
         try:
 
             data = request.data
-            customer_obj = Invoice.objects.filter(
-                Q(invoice_id=data.get('invoice')) | 
+            customer_objs = Invoice.objects.filter(
+                Q(invoice_id = uuid.UUID(data.get('invoice'))) | 
                 Q(customer_name=str(data.get('customer_name')))
             )
 
-            if customer_obj.count() == 0:
+            if customer_objs.count() == 0:
                 return Response({
                     'status': 404,
                     'message': "Sorry no user exists",
                 }, status=status.HTTP_404_NOT_FOUND)
             
-
-            serialize = InvoiceSerializer(customer_obj, data=data)
+            # invoice model serializer
+            serialize = InvoiceSerializer(customer_objs.first(), data=data)
 
             if serialize.is_valid():
-                serialize.save()
+                invoice_obj = serialize.save()
 
+                invoice_detail_obj = InvoiceDetails.objects.filter(invoice = invoice_obj.invoice_id).first()
+                
+                 # invoice detail model serializer
+                invoice_detail_serialize = InvoiceDetailSerializer(invoice_detail_obj, data=data)
+
+                if invoice_detail_serialize.is_valid():
+                    return Response({
+                        'status': 200,
+                        'message': "Invoice Updated successfully",
+                        'date': serialize.data
+                    }, status=status.HTTP_201_CREATED)
+                
                 return Response({
-                    'status': 200,
-                    'message': "Invoice Updated successfully",
-                    'date': serialize.data
-                }, status=status.HTTP_201_CREATED)
+                    'status': 400,
+                    'message': "error occured",
+                    'error': invoice_detail_serialize.errors
+                })
+            
+            return Response({
+                    'status': 400,
+                    'message': "error occured",
+                    'error': serialize.errors
+                })
             
         except Exception as e:
             print(e)
@@ -142,13 +191,10 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     
 
 
-    def destroy(self, request):
+    def destroy(self, request, pk):
         try:
-            data = request.data
-
-            invoice_id = data.get('invoice_id')
-
-            invoice_obj = Invoice.objects.filter(invoice_id=invoice_id)
+            invoice_id = uuid.UUID(pk)
+            invoice_obj = Invoice.objects.filter(invoice_id = invoice_id)
 
             if not invoice_obj.exists() or invoice_obj.count() == 0:
                 return Response({
@@ -156,14 +202,13 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                     'message': "Invoice does not exist",
                 }, status=status.HTTP_404_NOT_FOUND)
             
-            invoice_obj.delete()
+            invoice_obj[0].delete()
 
             return Response({
-                'status': 200,
+                'status': 204,
                 'message': "Invoice Deleted Successfully"
-            }, status=status.HTTP_200_OK)
+            }, status=status.HTTP_204_NO_CONTENT)
         
-
         except Exception as e:
             print(e)
         
