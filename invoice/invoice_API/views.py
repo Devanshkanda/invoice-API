@@ -14,7 +14,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = InvoiceDetails.objects.all()
     serializer_class = InvoiceSerializer
     permission_classes = [permissions.AllowAny]
-    # http_method_names = ['get', 'post', 'head', 'delete', 'put', 'patch']
+    http_method_names = ['get', 'post', 'head', 'delete', 'put', 'patch']
 
 
     # @method_decorator(cache_page(60 * 60))
@@ -155,7 +155,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
                 if invoice_detail_serialize.is_valid():
                     invoice_detail_serialize.save()
-                    
+
                     return Response({
                         'status': 201,
                         'message': "Invoice Updated successfully",
@@ -188,8 +188,10 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request):
         try:
-
-            pass
+            return Response({
+                'status': 200,
+                'message': "i am partial update function",
+            }, status=status.HTTP_200_OK)
         
         except Exception as e:
             print(e)
