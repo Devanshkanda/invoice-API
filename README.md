@@ -93,7 +93,8 @@ http:127.0.0.1:8000/api/invoice/76f4e645-f4cb-449b-8db7-9214aadd8c9f/
 Request body: it should contain any of the mentioned keys, combinations or all: customer_name, desc (descriptiion), quantity, unit_price
 
 ```
-Before Updating
+Before Updating:
+
 {
     "customer_name": "harsh",
     "desc": "invoice of Dominos. ordered cheeze burst pizza",
@@ -101,7 +102,7 @@ Before Updating
     "unit_price": 250
 }
 
-After updating
+After updating:
 
 {
     "customer_name": "harsh",
