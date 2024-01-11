@@ -1,8 +1,6 @@
 # invoice-API
 this is an invoice api.
 
-> **hello world**
-
 ## Setup the project
 
 Clone the git repository into your local system
@@ -33,7 +31,7 @@ Run the django server
 python3 manage.py runserver
 ```
 Done setting Up the project..
-your project is running on your localhost at port no 8000
+your project is running on your localhost on port No 8000
 
 # Naviagating to API Endpoints
 
