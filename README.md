@@ -82,6 +82,7 @@ Response
 ## PUT Request
 
 http method: PUT Request. 
+
 important: invoice id should need to be passed in the URL to update the information
 
 ```
