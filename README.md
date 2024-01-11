@@ -26,6 +26,12 @@ Install python libraries using the requirements.txt file
 pip install -r requirements.txt
 ```
 
+Migrate changes to database
+```
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
+
 Run the django server
 ```
 python3 manage.py runserver
