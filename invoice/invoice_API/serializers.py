@@ -11,6 +11,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     
 
     def validate(self, validated_data):
+        print("i am in invoice serializer validate func")
         customer_name: str = validated_data.get('customer_name')
 
         if customer_name is None:
@@ -24,6 +25,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
+            print(" i am in invoice serializer create func")
             invoice_obj = Invoice.objects.create(
                 customer_name=str(validated_data.get('customer_name'))
             )
@@ -34,12 +36,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         except Exception as e:
             print(e)
             raise serializers.ValidationError("error")
-        
-    
-    def update(self, instance, validated_date):
-        instance.customer_name = validated_date.get('customer_name', instance.customer_name)
-        instance.save()
-        return instance
+
 
 
 class InvoiceDetailSerializer(serializers.ModelSerializer):
@@ -77,7 +74,6 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
         return validated_data
     
 
-
     def create(self, validated_data):
         try:
             print("i am in create fucn of invoice detail serializer")
@@ -95,6 +91,29 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
 
         except Exception as e:
             print(e)
+
+
+
+class UpdateInvoiceSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Invoice
+        fields = ['customer_name', 'date']
+    
+
+    def update(self, instance, validated_date):
+        print(" i am in invoice serializer update func")
+        instance.customer_name = validated_date.get('customer_name', instance.customer_name)
+        instance.save()
+        return instance
+    
+
+
+class UpdateInvoiceDetailSerialzer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InvoiceDetails
+        fields = ['invoice', 'desc', 'quantity', 'unit_price', 'price']
     
 
     def update(self, instance, validated_data):

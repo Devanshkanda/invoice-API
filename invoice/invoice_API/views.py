@@ -29,11 +29,6 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                     'message': "fetched all invoices and its details",
                     'date': serialize.data
                 }, status=status.HTTP_200_OK)
-            
-            # return Response({
-            #     'status': 400,
-            #     'error': "error occured"
-            # }, status=status.HTTP_400_BAD_REQUEST)
         
         except Exception as e:
             print(e)
@@ -59,7 +54,6 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 print(data['invoice'])
                 print(data)
 
-                # invoice detail model serializer
                 invoice_Detail_serialize = InvoiceDetailSerializer(data=data)
 
                 if invoice_Detail_serialize.is_valid():
@@ -141,7 +135,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 }, status=status.HTTP_404_NOT_FOUND)
             
             # invoice model serializer
-            serialize = InvoiceSerializer(customer_objs.first(), data=data)
+            serialize = UpdateInvoiceSerializer(customer_objs.first(), data=data)
 
             if serialize.is_valid():
                 invoice_obj = serialize.save()
@@ -151,7 +145,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 print(invoice_detail_obj)
                 
                  # invoice detail model serializer
-                invoice_detail_serialize = InvoiceDetailSerializer(invoice_detail_obj, data=data)
+                invoice_detail_serialize = UpdateInvoiceDetailSerialzer(invoice_detail_obj, data=data)
 
                 if invoice_detail_serialize.is_valid():
                     invoice_detail_serialize.save()
@@ -169,13 +163,13 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                     'status': 400,
                     'message': "error occured",
                     'error': invoice_detail_serialize.errors
-                })
+                }, status=status.HTTP_400_BAD_REQUEST)
             
             return Response({
-                    'status': 400,
-                    'message': "error occured",
-                    'error': serialize.errors
-                })
+                'status': 400,
+                'message': "error occured",
+                'error': serialize.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
             
         except Exception as e:
             print(e)
@@ -186,13 +180,51 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 
-    def partial_update(self, request):
+    def partial_update(self, request, pk):
         try:
+            print("i am in partial update func. invoked by patch request")
+
+            invoice_obj = Invoice.objects.filter(invoice_id = uuid.UUID(pk))
+
+            if invoice_obj.count() == 0:
+                return Response({
+                    'status': 404,
+                    'message': "invoice does not exist",
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            data = request.data
+            serialize = UpdateInvoiceSerializer(invoice_obj.first(), data=data, partial=True)
+
+            if serialize.is_valid():
+                invoice_obj = serialize.save()
+
+                invoice_detail_obj = InvoiceDetails.objects.filter(invoice = invoice_obj.invoice_id).first()
+                invoice_detail_serialize = UpdateInvoiceDetailSerialzer(invoice_detail_obj, data=data, partial=True)
+
+                if invoice_detail_serialize.is_valid():
+                    invoice_detail_serialize.save()
+
+                    return Response({
+                        'status': 200,
+                        'message': "Invoice updated successfully",
+                        'data': {
+                            "invoice": serialize.data,
+                            "invoice details": invoice_detail_serialize.data
+                        }
+                    }, status=status.HTTP_200_OK)
+                
+                return Response({
+                    'status': 400,
+                    'message': "error occured",
+                    'error': invoice_detail_serialize.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
             return Response({
-                'status': 200,
-                'message': "i am partial update function",
-            }, status=status.HTTP_200_OK)
-        
+                'status': 400,
+                'message': "error occured",
+                'error': serialize.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             print(e)
         
