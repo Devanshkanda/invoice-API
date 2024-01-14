@@ -43,7 +43,7 @@ your project is running on your localhost on port No 8000
 
 ## Get Request
 
-http method GET Request
+HTTP method GET Request
 ```
 http:127.0.0.1:8000/api/invoice/
 ```
@@ -53,7 +53,7 @@ Response
 
 ## GET Request by ID
 
-http method: GET Request with id 
+HTTP method: GET Request with id 
 ```
 http:127.0.0.1:8000/api/invoice/<invoice id>/
 ```
@@ -64,7 +64,7 @@ Response
 
 ## POST Request
 
-http method: POST Request
+HTTP method: POST Request
 ```
 http:127.0.0.1:8000/api/invoice/
 ```
@@ -87,7 +87,7 @@ Response
 
 ## PUT Request
 
-http method: PUT Request. 
+HTTP method: PUT Request. 
 
 important: invoice id should need to be passed in the URL to update the information
 
@@ -95,7 +95,7 @@ important: invoice id should need to be passed in the URL to update the informat
 http:127.0.0.1:8000/api/invoice/76f4e645-f4cb-449b-8db7-9214aadd8c9f/
 ```
 
-Request body: it should contain any of the mentioned keys, combinations or all: customer_name, desc (descriptiion), quantity, unit_price
+Request body: it should contain all the mentioned keys, combinations or all: customer_name, desc (descriptiion), quantity, unit_price
 
 ```
 Before Updating:
@@ -121,9 +121,23 @@ After updating:
 Response
 ![image](https://github.com/Devanshkanda/invoice-API/assets/101200047/2977fdb1-5982-4f40-a0a2-6abdf73e8e21)
 
+## PATCH Request
+
+HTTP method: PATCH
+
+```
+http:127.0.0.1:8000/api/invoice/76f4e645-f4cb-449b-8db7-9214aadd8c9f/
+```
+
+Request body: It can contain any of the mentioned keys combinations or all: customer_name, desc (descriptiion), quantity, unit_price
+
+Response
+![image](https://github.com/Devanshkanda/invoice-API/assets/101200047/3ebe2ae1-767e-4c4a-9ccc-a75065ce162f)
+
+
 ## DELETE Request
 
-http method: DELETE
+HTTP method: DELETE
 
 important: pass the invoice id in the URL to delete the invoice
 
